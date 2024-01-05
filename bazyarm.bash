@@ -76,12 +76,18 @@ check_database() {
                 fi
                 ;;
 	    3050) # Firebird
-	        if isql-fb -user SYSDBA -password root "$host/$port:employee.fdb" -q -i /dev/null &> /dev/null; then
-		    echo "Connected to Firebird database."
-	        else
-		    echo "Connection failed to Firebird database."
-	        fi
-	        ;;
+    		if isql-fb -user SYSDBA -password root "$host/$port:dane.fdb" -q -i /dev/null &> /dev/null; then
+        		echo "Database 'dane' already exists. Skipping creation."
+    		else
+        		if isql-fb -user SYSDBA -password root "$host/$port:employee.fdb" -q -i /dev/null &> /dev/null; then
+            			echo "Connected to Firebird database."
+            			isql-fb -user SYSDBA -password root "$host/$port:dane.fdb" -q -i /path/to/your/create_database_script.sql
+            			echo "Database 'dane' created successfully."
+        		else
+            			echo "Connection failed to Firebird database."
+        		fi
+    		fi
+		;;
             27017) # MongoDB
                 if mongosh --host "$host" --port "$port" -u root -p root --authenticationDatabase admin --eval "quit();" &> /dev/null; then
                     echo "Connected to MongoDB database."
